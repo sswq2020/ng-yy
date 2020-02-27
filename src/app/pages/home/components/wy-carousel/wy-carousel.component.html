@@ -1,0 +1,25 @@
+<div class="carousel">
+  <div class="wrap">
+    <i nz-icon
+       class="arrow left"
+       nzType="left"
+       nzTheme="outline"
+       (click)="onchangeSlide('pre')"
+       >
+    </i>
+    <!--ng-content 感觉功能和Vue里的slot差不多,内容由父组件填充-->
+    <ng-content></ng-content>
+    <!--1.模板变量#dot https://www.jianshu.com/p/ad9d375bf76b-->
+    <!--2.let-index https://www.jianshu.com/p/82d7a5632483-->
+    <ng-template #dot let-index>
+      <i class="dot" [class.active]="activeIndex===index"></i>
+    </ng-template>
+    <i nz-icon
+       class="arrow right"
+       nzType="right"
+       nzTheme="outline"
+       (click)="onchangeSlide('next')"
+       >
+    </i>
+  </div>
+</div>
