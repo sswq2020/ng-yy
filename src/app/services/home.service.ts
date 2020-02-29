@@ -19,13 +19,15 @@ export class HomeService {
 
   getHotTags(): Observable<HotTag[]> {
     return this.http.get(`${this.uri}playlist/hot`).pipe(
-      map((res: { tags: HotTag[] }) => res.tags)
+      map((res: { tags: HotTag[] }) => res.tags.sort((a, b) => {
+        return a.position - b.position;
+      }).slice(0, 5))
     );
   }
 
   getPersonalSheetList(): Observable<SongSheet[]> {
     return this.http.get(`${this.uri}personalized`).pipe(
-      map((res: { result: SongSheet[] }) => res.result)
+      map((res: { result: SongSheet[] }) => res.result.slice(0, 16))
     );
   }
 
