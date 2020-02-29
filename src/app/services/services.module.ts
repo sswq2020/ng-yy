@@ -1,10 +1,14 @@
-import { NgModule } from '@angular/core';
-import { ShareModule } from '../share/share.module';
+import { NgModule, InjectionToken } from '@angular/core';
+
+export const API_CONFIG_BASE_URL = new InjectionToken('ApiConfigBaseUrl');
 
 @NgModule({
   declarations: [],
   imports: [
-    ShareModule
+  ],
+  providers: [
+    {provide: API_CONFIG_BASE_URL, useValue: 'http://localhost:3000/'}
   ]
+
 })
 export class ServicesModule { }
