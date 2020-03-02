@@ -3,6 +3,7 @@ import { Banner, HotTag, SongSheet, Singer } from 'src/app/services/data-types/c
 import { NzCarouselComponent } from 'ng-zorro-antd';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/internal/operators';
+import { SheetService } from 'src/app/services/sheet.service';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +21,7 @@ export class HomeComponent implements OnInit {
   // 使用ViewChild获取子组件的实例 https://www.jianshu.com/p/ac5366abfa74
   @ViewChild(NzCarouselComponent, { static: true }) private nzcarousel: NzCarouselComponent;
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute,private sheetServe: SheetService) {
     this.route.data.pipe(map(res => res.homeDatas))
     // 主要这种函数参数的解构赋值我平时用的不多,需要注意https://es6.ruanyifeng.com/#docs/destructuring#函数参数的解构赋值
     .subscribe(([banners, hotTags, songSheetList, singers]) => {
@@ -41,5 +42,11 @@ export class HomeComponent implements OnInit {
 
   getType(type: string) {
     this.nzcarousel[type]();
+  }
+
+  onPlaySheet(id: number) {
+    this.sheetServe.getSongSheetDetail(id).subscribe(res => {
+      console.log(res);
+    })
   }
 }
