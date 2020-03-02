@@ -38,3 +38,9 @@ export interface SongSheet {
   playCount: number;
   tracks: Song[];
 }
+
+/***歌曲播放地址**/
+export interface SongUrl {
+  id: number;
+  url: string;
+}
