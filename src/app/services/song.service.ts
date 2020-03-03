@@ -30,15 +30,18 @@ export class SongService {
     const that = this;
     const songArr = Array.isArray(songs) ? songs.slice() : [songs];
     const ids = songArr.map(song => song.id).join(',');
-    return Observable.create(observer => {
-      that.getSongUrl(ids).subscribe(urls => {
-        observer.next(that.generateSongList(songArr, urls));
-       });
-    });
+    // return Observable.create(observer => {
+    //   that.getSongUrl(ids).subscribe(urls => {
+    //     observer.next(that.generateSongList(songArr, urls));
+    //    });
+    // });
+    return that.getSongUrl(ids).pipe(
+      map((urls) => that.generateSongList(songArr, urls))
+    );
   }
 
   /**
-   * @description 这个方法就是为了将歌单里每首歌曲都拼接上播放地址,必经是2个接口
+   * @description 这个方法就是为了将歌单里每首歌曲都拼接上播放地址,毕竟是2个接口
    */
   private generateSongList(songs: Song[], urls: SongUrl[]): Song[] {
     const list = [];
