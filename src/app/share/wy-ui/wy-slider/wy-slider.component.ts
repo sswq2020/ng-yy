@@ -1,10 +1,15 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ViewChild, ElementRef, Input, Inject } from '@angular/core';
+import {
+  Component, OnInit, ViewEncapsulation,
+  ChangeDetectionStrategy, ViewChild, ElementRef,
+  Input, Inject, ChangeDetectorRef
+} from '@angular/core';
 import { fromEvent, merge, Observable } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
 import { SiderDirection, SliderEventObserverConfig } from './wy-slider-types';
 import { DOCUMENT } from '@angular/common';
-import { inArr } from 'src/app/utils';
+import { inArr, limitNumberInRange, _getPercent } from 'src/app/utils';
 import { getElementOffset } from './wy-slider-hleper';
+import { sliderValue } from 'src/app/services/data-types/common.types';
 
 @Component({
   selector: 'app-wy-slider',
@@ -23,13 +28,20 @@ export class WySliderComponent implements OnInit {
   @Input() wyMin = 0;
   @Input() wyMax = 100;
 
+  /***是否正在滑动,默认不滑动**/
+  isDragging = false;
+
+  value: sliderValue = null;
+  /***offet作为最终给子组件输出的滑动百分比**/
+  offet: sliderValue = null;
+
   @ViewChild('wySlider', { static: true }) wySlider: ElementRef;
 
   private dragStart$: Observable<number>;
   private dragMove$: Observable<number>;
   private dragEnd$: Observable<Event>;
 
-  constructor(@Inject(DOCUMENT) private doc: Document) { }
+  constructor(@Inject(DOCUMENT) private doc: Document, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     // 1.绑定DOM
@@ -108,23 +120,39 @@ export class WySliderComponent implements OnInit {
       this.dragStart$.subscribe(this.onDragStart.bind(this)); // 为什么是bind,能理解吗？
     }
     if (inArr(events, 'move') && this.dragMove$) {
-      this.dragStart$.subscribe(this.onDragMove.bind(this));
+      this.dragMove$.subscribe(this.onDragMove.bind(this));
     }
     if (inArr(events, 'end') && this.dragEnd$) {
-      this.dragStart$.subscribe(this.onDragEnd.bind(this));
+      this.dragEnd$.subscribe(this.onDragEnd.bind(this));
     }
   }
 
+  /***订阅start时的回调函数**/
   private onDragStart(value: number) {
-    console.log('value', value)
+    this.setValue(value);
+    this.toggleDragMoving(true);
   }
 
+  /***订阅move时的回调函数**/
   private onDragMove(value: number) {
-
+    if (this.isDragging) {
+      this.setValue(value);
+    }
   }
 
+  /***订阅end时的回调函数**/
   private onDragEnd() {
+    this.toggleDragMoving(false);
+    this.cdr.markForCheck();
+  }
 
+  private toggleDragMoving(movable: boolean) {
+    this.isDragging = movable;
+    if (movable) {
+      this.subscribeDrag(['move', 'end']);
+    } else {
+      // this.unsubscribeDrag(['move', 'end']);
+    }
   }
 
   // position / 滑动组件总长度  === position - 初始位置 / 滑动组件总长度
@@ -135,13 +163,12 @@ export class WySliderComponent implements OnInit {
     const sliderStart = this.getSliderStartPosition();
     // 滑块当前位置/滑块总长
     let ratio = (position - sliderStart) / silderLength;
+    ratio = limitNumberInRange(ratio, 0, 1);
     // 垂直方向就是1-ratio
     ratio = this.wyVertical === SiderDirection.Vertical ? ratio : 1 - ratio;
 
     return ratio * (this.wyMax - this.wyMin) + this.wyMin;
   }
-
-
 
   /***滑动组件视口距离左边和上边的距离**/
   private getSliderStartPosition(): number {
@@ -154,5 +181,18 @@ export class WySliderComponent implements OnInit {
     return this.wyVertical === SiderDirection.Horizontal ? this.sliderDom.clientHeight : this.sliderDom.clientWidth;
   }
 
+  private setValue(value: sliderValue) {
+    this.value = value;
+    this.updateTrackAndHandles();
+  }
+
+  private updateTrackAndHandles() {
+    this.offet = this.getValuetoOffset(this.value);
+    this.cdr.markForCheck();
+  }
+
+  private getValuetoOffset(value: sliderValue) {
+    return _getPercent(value, this.wyMin, this.wyMax);
+  }
 
 }
