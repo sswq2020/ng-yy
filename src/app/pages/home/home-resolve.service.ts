@@ -14,6 +14,7 @@ export class HomeResolverService implements Resolve<HomeDataType> {
   constructor(private homeService: HomeService, private singerService: SingerService) { }
 
   resolve(): Observable<HomeDataType> {
+  // forkJoin类似Promise.all
   return forkJoin([
       this.homeService.getBanners(),
       this.homeService.getHotTags(),
