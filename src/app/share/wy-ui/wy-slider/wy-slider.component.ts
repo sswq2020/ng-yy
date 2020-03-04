@@ -137,6 +137,7 @@ export class WySliderComponent implements OnInit {
   private onDragMove(value: number) {
     if (this.isDragging) {
       this.setValue(value);
+      this.cdr.markForCheck();
     }
   }
 
@@ -182,7 +183,7 @@ export class WySliderComponent implements OnInit {
   }
 
   private setValue(value: sliderValue) {
-    if (!this.valuesEqual) {
+    if (!this.valuesEqual(value, this.value)) {
       this.value = value;
       this.updateTrackAndHandles();
     }
