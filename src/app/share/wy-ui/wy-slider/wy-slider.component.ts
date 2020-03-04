@@ -3,6 +3,8 @@ import { fromEvent, merge, Observable } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
 import { SiderDirection, SliderEventObserverConfig } from './wy-slider-types';
 import { DOCUMENT } from '@angular/common';
+import { inArr } from 'src/app/utils';
+import { getElementOffset } from './wy-slider-hleper';
 
 @Component({
   selector: 'app-wy-slider',
@@ -17,6 +19,9 @@ export class WySliderComponent implements OnInit {
 
   /***水平方向还是垂直方向**/
   @Input() wyVertical: string = SiderDirection.Vertical;
+  /***默认是百分制**/
+  @Input() wyMin = 0;
+  @Input() wyMax = 100;
 
   @ViewChild('wySlider', { static: true }) wySlider: ElementRef;
 
@@ -27,8 +32,12 @@ export class WySliderComponent implements OnInit {
   constructor(@Inject(DOCUMENT) private doc: Document) { }
 
   ngOnInit(): void {
+    // 1.绑定DOM
     this.sliderDom = this.wySlider.nativeElement;
+    // 2.给DOM绑定6个Event事件转化为流
     this.createDraggingObservables();
+    // 3.订阅mousedown或者touchstart事件流
+    this.subscribeDrag(['start']);
   }
 
   /***
@@ -93,8 +102,57 @@ export class WySliderComponent implements OnInit {
     this.dragEnd$ = merge(mouse.end$, touch.end$);
   }
 
-  findCloseValue(position: number) {
-    console.log(position);
-    return 2;
+  /***订阅一个或者多个事件流**/
+  private subscribeDrag(events: string[] = ['start', 'move', 'end']) {
+    if (inArr(events, 'start') && this.dragStart$) {
+      this.dragStart$.subscribe(this.onDragStart.bind(this)); // 为什么是bind,能理解吗？
+    }
+    if (inArr(events, 'move') && this.dragMove$) {
+      this.dragStart$.subscribe(this.onDragMove.bind(this));
+    }
+    if (inArr(events, 'end') && this.dragEnd$) {
+      this.dragStart$.subscribe(this.onDragEnd.bind(this));
+    }
   }
+
+  private onDragStart(value: number) {
+    console.log('value', value)
+  }
+
+  private onDragMove(value: number) {
+
+  }
+
+  private onDragEnd() {
+
+  }
+
+  // position / 滑动组件总长度  === position - 初始位置 / 滑动组件总长度
+  private findCloseValue(position: number) {
+    // 滑块总长
+    const silderLength = this.getSliderlength();
+    // 滑块(左,上)端点
+    const sliderStart = this.getSliderStartPosition();
+    // 滑块当前位置/滑块总长
+    let ratio = (position - sliderStart) / silderLength;
+    // 垂直方向就是1-ratio
+    ratio = this.wyVertical === SiderDirection.Vertical ? ratio : 1 - ratio;
+
+    return ratio * (this.wyMax - this.wyMin) + this.wyMin;
+  }
+
+
+
+  /***滑动组件视口距离左边和上边的距离**/
+  private getSliderStartPosition(): number {
+    const offset = getElementOffset(this.sliderDom);
+    return this.wyVertical === SiderDirection.Vertical ? offset.left : offset.top;
+  }
+
+  /***滑动组件总长,区分水平垂直**/
+  private getSliderlength(): number {
+    return this.wyVertical === SiderDirection.Horizontal ? this.sliderDom.clientHeight : this.sliderDom.clientWidth;
+  }
+
+
 }
