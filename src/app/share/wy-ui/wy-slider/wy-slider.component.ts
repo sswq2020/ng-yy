@@ -182,8 +182,17 @@ export class WySliderComponent implements OnInit {
   }
 
   private setValue(value: sliderValue) {
-    this.value = value;
-    this.updateTrackAndHandles();
+    if (!this.valuesEqual) {
+      this.value = value;
+      this.updateTrackAndHandles();
+    }
+  }
+
+  private valuesEqual(valA: sliderValue, valB: sliderValue) {
+    if (typeof valA !== typeof valB) {
+      return false;
+    }
+    return valA === valB;
   }
 
   private updateTrackAndHandles() {
