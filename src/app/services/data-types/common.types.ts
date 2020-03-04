@@ -44,3 +44,6 @@ export interface SongUrl {
   id: number;
   url: string;
 }
+
+
+export type sliderValue = number | null;
