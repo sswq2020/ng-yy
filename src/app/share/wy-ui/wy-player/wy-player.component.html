@@ -27,7 +27,7 @@
             <app-wy-slider [(ngModel)]="sliderValue"></app-wy-slider>
           </div>
           <span class="time">
-            <em>02:11</em>/ {{sliderValue}}
+            <em>02:11</em>    / {{sliderValue}}
           </span>
         </div>
       </div>
@@ -37,11 +37,14 @@
         <i class="share" title="分享"></i>
       </div>
       <div class="ctrl">
-        <i class="volume" title="音量"></i>
+        <i class="volume" title="音量">{{sliderVericalValue}}</i>
         <i class="loop" title="循环"></i>
         <p class="open">
           <span></span>
         </p>
+        <div class="control-vol">
+          <app-wy-slider [(ngModel)]="sliderVericalValue" [wyVertical]="VERTICAL"></app-wy-slider>
+        </div>
       </div>
     </div>
   </div>

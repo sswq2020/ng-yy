@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 
 export enum SiderDirection {
-  /***水平**/
-  Vertical = '0',
   /***垂直**/
+  Vertical = '0',
+  /***水平**/
   Horizontal = '1'
 }
 

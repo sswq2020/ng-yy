@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SiderDirection } from '../wy-slider/wy-slider-types';
 
 @Component({
   selector: 'app-wy-player',
@@ -8,6 +9,11 @@ import { Component, OnInit } from '@angular/core';
 export class WyPlayerComponent implements OnInit {
 
   sliderValue =  35;
+
+  sliderVericalValue = 22;
+
+  VERTICAL = SiderDirection.Vertical;
+
   constructor() { }
 
   ngOnInit(): void {

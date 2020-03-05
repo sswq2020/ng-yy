@@ -29,7 +29,10 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
   private sliderDom: HTMLDivElement;
 
   /***水平方向还是垂直方向**/
-  @Input() wyVertical: string = SiderDirection.Vertical;
+  @Input() wyVertical: string = SiderDirection.Horizontal;
+  /***模板中用于判断是否是垂直变量**/
+  VERTICAL = SiderDirection.Vertical;
+
   /***默认是百分制**/
   @Input() wyMin = 0;
   @Input() wyMax = 100;
@@ -76,7 +79,7 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
    * 移动端 touchstart touchmove touchend---TouchEvent---e.touches[0].pageX, e.touches[0].pageY
    * */
   private createDraggingObservables() {
-    const orientField = this.wyVertical === SiderDirection.Vertical ? 'pageX' : 'pageY';
+    const orientField = this.wyVertical === SiderDirection.Horizontal ? 'pageX' : 'pageY';
 
     const mouse: SliderEventObserverConfig = {
       start: 'mousedown',
@@ -198,7 +201,7 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
     let ratio = (position - sliderStart) / silderLength;
     ratio = limitNumberInRange(ratio, 0, 1);
     // 垂直方向就是1-ratio
-    ratio = this.wyVertical === SiderDirection.Vertical ? ratio : 1 - ratio;
+    ratio = this.wyVertical === SiderDirection.Horizontal ? ratio : 1 - ratio;
 
     return ratio * (this.wyMax - this.wyMin) + this.wyMin;
   }
@@ -206,12 +209,12 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
   /***滑动组件视口距离左边和上边的距离**/
   private getSliderStartPosition(): number {
     const offset = getElementOffset(this.sliderDom);
-    return this.wyVertical === SiderDirection.Vertical ? offset.left : offset.top;
+    return this.wyVertical === SiderDirection.Horizontal ? offset.left : offset.top;
   }
 
   /***滑动组件总长,区分水平垂直**/
   private getSliderlength(): number {
-    return this.wyVertical === SiderDirection.Horizontal ? this.sliderDom.clientHeight : this.sliderDom.clientWidth;
+    return this.wyVertical === SiderDirection.Vertical ? this.sliderDom.clientHeight : this.sliderDom.clientWidth;
   }
 
   /***

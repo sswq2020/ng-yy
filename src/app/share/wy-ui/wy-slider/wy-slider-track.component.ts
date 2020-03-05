@@ -20,7 +20,7 @@ import { SiderDirection, WysliderStyle } from './wy-slider-types';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WySliderTrackComponent implements OnInit, OnChanges {
-  @Input() wyVertical: string = SiderDirection.Vertical;
+  @Input() wyVertical: string = SiderDirection.Horizontal;
   @Input() wyLength: number;
 
   style: WysliderStyle = {};
@@ -33,7 +33,7 @@ export class WySliderTrackComponent implements OnInit, OnChanges {
   // ngOnChanges这个用法感觉和Vue里的watch监听属性差不多
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.wyLength) {
-      if (this.wyVertical === SiderDirection.Vertical) {
+      if (this.wyVertical === SiderDirection.Horizontal) {
         this.style.width = this.wyLength + '%';
         this.style.bottom = null;
         this.style.height = null;
