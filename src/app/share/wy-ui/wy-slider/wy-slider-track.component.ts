@@ -16,12 +16,13 @@ import { SiderDirection, WysliderStyle } from './wy-slider-types';
 
 @Component({
   selector: 'app-wy-slider-track',
-  template: `<div class="wy-slider-track" [ngStyle]="style"></div>`,
+  template: `<div class="wy-slider-track" [class.buffer]="wyBuffer" [ngStyle]="style"></div>`,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WySliderTrackComponent implements OnInit, OnChanges {
   @Input() wyVertical: string = SiderDirection.Horizontal;
   @Input() wyLength: number;
+  @Input() wyBuffer = false;
 
   style: WysliderStyle = {};
 

@@ -12,7 +12,9 @@ export class WyPlayerComponent implements OnInit {
 
   sliderVericalValue = 22;
 
-  VERTICAL = SiderDirection.Vertical;
+  Vertical = SiderDirection.Vertical;
+
+  bufferOffet = 70;
 
   constructor() { }
 

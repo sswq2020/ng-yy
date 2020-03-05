@@ -31,11 +31,12 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
   /***水平方向还是垂直方向**/
   @Input() wyVertical: string = SiderDirection.Horizontal;
   /***模板中用于判断是否是垂直变量**/
-  VERTICAL = SiderDirection.Vertical;
+  Vertical = SiderDirection.Vertical;
 
   /***默认是百分制**/
   @Input() wyMin = 0;
   @Input() wyMax = 100;
+  @Input() bufferOffet: sliderValue = 0;
 
   /***是否正在滑动,默认不滑动**/
   isDragging = false;
