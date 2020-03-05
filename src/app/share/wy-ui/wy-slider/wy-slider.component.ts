@@ -7,7 +7,7 @@ import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
 import { SiderDirection, SliderEventObserverConfig } from './wy-slider-types';
 import { DOCUMENT } from '@angular/common';
-import { inArr, limitNumberInRange, _getPercent } from 'src/app/utils';
+import { inArr, limitNumberInRange, _getPercent, assertValueValid } from 'src/app/utils';
 import { getElementOffset } from './wy-slider-hleper';
 import { sliderValue } from 'src/app/services/data-types/common.types';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -214,11 +214,35 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
     return this.wyVertical === SiderDirection.Horizontal ? this.sliderDom.clientHeight : this.sliderDom.clientWidth;
   }
 
-  private setValue(value: sliderValue) {
+  /***
+   * @description 对value进行赋值,在内部拖拽值不会有问题,外部传入的需要验证检测
+   * **/
+  private setValue(value: sliderValue, needCheck = false) {
+    if (needCheck) {
+      // 如果正在滑动中,直接退出
+      if (this.isDragging) { return; }
+      this.value = this._formatValue(value);
+      this.updateTrackAndHandles();
+      return;
+    }
+
     if (!this.valuesEqual(value, this.value)) {
       this.value = value;
       this.updateTrackAndHandles();
+      this.onValueChange(this.value);
     }
+  }
+
+  /***对外部传入的值就行合法化处理**/
+  private _formatValue(value: sliderValue): sliderValue {
+    let res = value;
+    // 真返回自定义的最小值
+    if (assertValueValid(res)) {
+      res = this.wyMin;
+    } else {
+      res = limitNumberInRange(res, this.wyMin, this.wyMax);
+    }
+    return res;
   }
 
   /***pre,cur值进行比较**/
@@ -238,16 +262,21 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
     return _getPercent(value, this.wyMin, this.wyMax);
   }
 
+  private onValueChange(value: sliderValue): void { }
+
+  private onTouched() { }
+
+
   // 用来赋值的
-  writeValue(obj: any): void {
-    throw new Error("Method not implemented.");
+  writeValue(value: sliderValue): void {
+    this.setValue(value, true);
   }
-  // 用来发射change事件的
-  registerOnChange(fn: any): void {
-    throw new Error("Method not implemented.");
+  // 用来发射change事件的,组件内部通过拖拽改变值时,把事件发射出去
+  registerOnChange(fn: (value: sliderValue) => void): void {
+    this.onValueChange = fn;
   }
-  registerOnTouched(fn: any): void {
-    throw new Error("Method not implemented.");
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
   }
 
 }
