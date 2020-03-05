@@ -189,6 +189,7 @@ export class WySliderComponent implements OnInit {
     }
   }
 
+  /***pre,cur值进行比较**/
   private valuesEqual(valA: sliderValue, valB: sliderValue) {
     if (typeof valA !== typeof valB) {
       return false;
