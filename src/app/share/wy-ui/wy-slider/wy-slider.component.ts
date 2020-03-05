@@ -1,7 +1,7 @@
 import {
   Component, OnInit, ViewEncapsulation,
   ChangeDetectionStrategy, ViewChild, ElementRef,
-  Input, Inject, ChangeDetectorRef
+  Input, Inject, ChangeDetectorRef, forwardRef
 } from '@angular/core';
 import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
@@ -10,15 +10,21 @@ import { DOCUMENT } from '@angular/common';
 import { inArr, limitNumberInRange, _getPercent } from 'src/app/utils';
 import { getElementOffset } from './wy-slider-hleper';
 import { sliderValue } from 'src/app/services/data-types/common.types';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-wy-slider',
   templateUrl: './wy-slider.component.html',
   styleUrls: ['./wy-slider.component.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => WySliderComponent), // 允许我们引用尚未定义的类
+    multi: true // 说明我们这个token有多个依赖
+  }],
   encapsulation: ViewEncapsulation.None // https://angular.cn/guide/component-styles#external-and-global-style-files
 })
-export class WySliderComponent implements OnInit {
+export class WySliderComponent implements OnInit, ControlValueAccessor {
   /***模板变量获取的DOM**/
   private sliderDom: HTMLDivElement;
 
@@ -125,13 +131,13 @@ export class WySliderComponent implements OnInit {
   /***订阅一个或者多个事件流**/
   private subscribeDrag(events: string[] = ['start', 'move', 'end']) {
     if (inArr(events, 'start') && this.dragStart$ && !this.dragStartCancel) {
-       this.dragStartCancel = this.dragStart$.subscribe(this.onDragStart.bind(this)); // 为什么是bind,能理解吗？
+      this.dragStartCancel = this.dragStart$.subscribe(this.onDragStart.bind(this)); // 为什么是bind,能理解吗？
     }
     if (inArr(events, 'move') && this.dragMove$ && !this.dragMoveCancel) {
-        this.dragMoveCancel = this.dragMove$.subscribe(this.onDragMove.bind(this));
+      this.dragMoveCancel = this.dragMove$.subscribe(this.onDragMove.bind(this));
     }
     if (inArr(events, 'end') && this.dragEnd$ && !this.dragEndCancel) {
-        this.dragEndCancel =  this.dragEnd$.subscribe(this.onDragEnd.bind(this));
+      this.dragEndCancel = this.dragEnd$.subscribe(this.onDragEnd.bind(this));
     }
   }
 
@@ -230,6 +236,18 @@ export class WySliderComponent implements OnInit {
 
   private getValuetoOffset(value: sliderValue) {
     return _getPercent(value, this.wyMin, this.wyMax);
+  }
+
+  // 用来赋值的
+  writeValue(obj: any): void {
+    throw new Error("Method not implemented.");
+  }
+  // 用来发射change事件的
+  registerOnChange(fn: any): void {
+    throw new Error("Method not implemented.");
+  }
+  registerOnTouched(fn: any): void {
+    throw new Error("Method not implemented.");
   }
 
 }
