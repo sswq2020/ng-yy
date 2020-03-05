@@ -12,3 +12,9 @@ export function limitNumberInRange(val: number, min: number, max: number): numbe
 export function _getPercent(val: number, min: number, max: number) {
   return ((val - min) / (max - min)) * 100;
 }
+
+/***判断是否为NAN,返回值为true说明不是数字**/
+export function assertValueValid(value: any): boolean {
+  const a = (typeof value !== 'number') ? parseFloat(value) : value;
+  return isNaN(a);
+}
