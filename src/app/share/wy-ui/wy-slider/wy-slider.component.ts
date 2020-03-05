@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy, ViewChild, ElementRef,
   Input, Inject, ChangeDetectorRef
 } from '@angular/core';
-import { fromEvent, merge, Observable } from 'rxjs';
+import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
 import { SiderDirection, SliderEventObserverConfig } from './wy-slider-types';
 import { DOCUMENT } from '@angular/common';
@@ -37,9 +37,17 @@ export class WySliderComponent implements OnInit {
 
   @ViewChild('wySlider', { static: true }) wySlider: ElementRef;
 
+  // #region 订阅流的对象
   private dragStart$: Observable<number>;
   private dragMove$: Observable<number>;
   private dragEnd$: Observable<Event>;
+  // #endregion
+
+  // #region 取消订阅流的对象
+  private dragStartCancel: Subscription | null;
+  private dragMoveCancel: Subscription | null;
+  private dragEndCancel: Subscription | null;
+  // #endregion
 
   constructor(@Inject(DOCUMENT) private doc: Document, private cdr: ChangeDetectorRef) { }
 
@@ -116,16 +124,34 @@ export class WySliderComponent implements OnInit {
 
   /***订阅一个或者多个事件流**/
   private subscribeDrag(events: string[] = ['start', 'move', 'end']) {
-    if (inArr(events, 'start') && this.dragStart$) {
-      this.dragStart$.subscribe(this.onDragStart.bind(this)); // 为什么是bind,能理解吗？
+    if (inArr(events, 'start') && this.dragStart$ && !this.dragStartCancel) {
+       this.dragStartCancel = this.dragStart$.subscribe(this.onDragStart.bind(this)); // 为什么是bind,能理解吗？
     }
-    if (inArr(events, 'move') && this.dragMove$) {
-      this.dragMove$.subscribe(this.onDragMove.bind(this));
+    if (inArr(events, 'move') && this.dragMove$ && !this.dragMoveCancel) {
+        this.dragMoveCancel = this.dragMove$.subscribe(this.onDragMove.bind(this));
     }
-    if (inArr(events, 'end') && this.dragEnd$) {
-      this.dragEnd$.subscribe(this.onDragEnd.bind(this));
+    if (inArr(events, 'end') && this.dragEnd$ && !this.dragEndCancel) {
+        this.dragEndCancel =  this.dragEnd$.subscribe(this.onDragEnd.bind(this));
     }
   }
+
+  /***取消订阅一个或者多个事件流**/
+  private unsubscribeDrag(events: string[] = ['start', 'move', 'end']) {
+    if (inArr(events, 'start') && this.dragStartCancel) {
+      this.dragStartCancel.unsubscribe();
+      this.dragStartCancel = null;
+    }
+    if (inArr(events, 'move') && this.dragMoveCancel) {
+      this.dragMoveCancel.unsubscribe();
+      this.dragMoveCancel = null;
+    }
+    if (inArr(events, 'end') && this.dragEndCancel) {
+      this.dragEndCancel.unsubscribe();
+      this.dragEndCancel = null;
+    }
+  }
+
+
 
   /***订阅start时的回调函数**/
   private onDragStart(value: number) {
@@ -152,7 +178,7 @@ export class WySliderComponent implements OnInit {
     if (movable) {
       this.subscribeDrag(['move', 'end']);
     } else {
-      // this.unsubscribeDrag(['move', 'end']);
+      this.unsubscribeDrag(['move', 'end']);
     }
   }
 
