@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SiderDirection } from '../wy-slider/wy-slider-types';
+import { Store, select } from '@ngrx/store';
+import { AppStoreModule } from 'src/app/store';
+import { getSongList, getPlayer } from 'src/app/store/selectors/player.selector';
 
 @Component({
   selector: 'app-wy-player',
@@ -8,7 +11,7 @@ import { SiderDirection } from '../wy-slider/wy-slider-types';
 })
 export class WyPlayerComponent implements OnInit {
 
-  sliderValue =  35;
+  sliderValue = 35;
 
   sliderVericalValue = 22;
 
@@ -16,7 +19,12 @@ export class WyPlayerComponent implements OnInit {
 
   bufferOffet = 70;
 
-  constructor() { }
+  constructor(private store$: Store<AppStoreModule>) {
+    const appStore$ = this.store$.pipe(select(getPlayer));
+    appStore$.pipe(select(getSongList)).subscribe(list => {
+      console.log('getSongList', list);
+    });
+  }
 
   ngOnInit(): void {
   }
