@@ -9,7 +9,7 @@ import zh from '@angular/common/locales/zh';
 import { ServicesModule } from '../services/services.module';
 import { PagesModule } from '../pages/pages.module';
 import { ShareModule } from '../share/share.module';
-
+import { AppStoreModule } from '../store';
 
 // 如何引入icon减少报错   https://ng.ant.design/components/icon/zh
 import { IconDefinition } from '@ant-design/icons-angular';
@@ -36,6 +36,7 @@ registerLocaleData(zh);
     PagesModule,
     ShareModule,
     NzIconModule,
+    AppStoreModule,
     AppRoutingModule
   ],
   exports: [
