@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { SiderDirection } from '../wy-slider/wy-slider-types';
 import { Store, select } from '@ngrx/store';
 import { AppStoreModule } from 'src/app/store';
 import { getSongList, getPlayer, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from 'src/app/store/selectors/player.selector';
 import { Song } from 'src/app/services/data-types/common.types';
 import { PlayMode } from './player-types';
-
 @Component({
   selector: 'app-wy-player',
   templateUrl: './wy-player.component.html',
   styleUrls: ['./wy-player.component.less']
 })
 export class WyPlayerComponent implements OnInit {
+
+  /***获取audio标签的引用**/
+  @ViewChild('audio', { static: true }) private audio: ElementRef;
+  /***获取audio的DOM,上面nativeElement属性**/
+  private audioEl: HTMLAudioElement;
 
   sliderValue = 35;
 
@@ -36,6 +40,7 @@ export class WyPlayerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.audioEl = this.audio.nativeElement;
   }
 
   private watchList(list: Song[], type: string) {
@@ -52,8 +57,14 @@ export class WyPlayerComponent implements OnInit {
 
   private watchCurrentSong(song: Song): void {
     this.currentSong = song;
-    console.info(this.currentSong);
   }
 
+  onCanplay() {
+    this.play();
+  }
+
+  private play() {
+    this.audioEl.play();
+  }
 
 }
