@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { SiderDirection } from '../wy-slider/wy-slider-types';
 import { Store, select } from '@ngrx/store';
 import { AppStoreModule } from 'src/app/store';
-import { getSongList, getPlayer } from 'src/app/store/selectors/player.selector';
+import { getSongList, getPlayer, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from 'src/app/store/selectors/player.selector';
+import { Song } from 'src/app/services/data-types/common.types';
+import { PlayMode } from './player-types';
 
 @Component({
   selector: 'app-wy-player',
@@ -19,14 +21,39 @@ export class WyPlayerComponent implements OnInit {
 
   bufferOffet = 70;
 
+  songList: Song[];
+  playList: Song[];
+  currentIndex: number;
+  currentSong: Song | null;
+
   constructor(private store$: Store<AppStoreModule>) {
     const appStore$ = this.store$.pipe(select(getPlayer));
-    appStore$.pipe(select(getSongList)).subscribe(list => {
-      console.log('getSongList', list);
-    });
+    appStore$.pipe(select(getSongList)).subscribe(list => this.watchList(list, 'songList'));
+    appStore$.pipe(select(getPlayList)).subscribe(list => this.watchList(list, 'playList'));
+    appStore$.pipe(select(getCurrentIndex)).subscribe(index => this.watchCurrentIndex(index));
+    appStore$.pipe(select(getPlayMode)).subscribe(mode => this.watchPlayMode(mode));
+    appStore$.pipe(select(getCurrentSong)).subscribe(song => this.watchCurrentSong(song));
   }
 
   ngOnInit(): void {
   }
+
+  private watchList(list: Song[], type: string) {
+    this[type] = list;
+  }
+
+  private watchCurrentIndex(index: number) {
+    this.currentIndex = index;
+  }
+
+  private watchPlayMode(mode: PlayMode) {
+    console.log(mode);
+  }
+
+  private watchCurrentSong(song: Song): void {
+    this.currentSong = song;
+    console.info(this.currentSong);
+  }
+
 
 }
