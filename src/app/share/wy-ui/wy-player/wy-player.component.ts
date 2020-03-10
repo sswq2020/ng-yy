@@ -140,4 +140,8 @@ export class WyPlayerComponent implements OnInit {
     this.play();
   }
 
+  onPercentChange(per) {
+    this.audioEl.currentTime = this.duration * (per / 100);
+  }
+
 }
