@@ -5,6 +5,7 @@ import { AppStoreModule } from 'src/app/store';
 import { getSongList, getPlayer, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from 'src/app/store/selectors/player.selector';
 import { Song } from 'src/app/services/data-types/common.types';
 import { PlayMode } from './player-types';
+import { setCurrentIndex } from 'src/app/store/actions/player.actions';
 @Component({
   selector: 'app-wy-player',
   templateUrl: './wy-player.component.html',
@@ -49,6 +50,7 @@ export class WyPlayerComponent implements OnInit {
 
   ngOnInit(): void {
     this.audioEl = this.audio.nativeElement;
+    console.log(this.playList);
   }
 
   private watchList(list: Song[], type: string) {
@@ -90,14 +92,52 @@ export class WyPlayerComponent implements OnInit {
   }
 
   onToggle() {
-    if (this.songReady) {
-      this.playing = !this.playing;
-      if (this.playing) {
-        this.audioEl.play();
-      } else {
-        this.audioEl.pause();
+    // 如果设定播放的时候,歌曲并不存在,需要做进一步的处理
+    if (!this.currentSong) {
+      if (this.playList.length) {
+        this.updateIndex(0);
+      }
+    } else {
+      if (this.songReady) {
+        this.playing = !this.playing;
+        if (this.playing) {
+          this.audioEl.play();
+        } else {
+          this.audioEl.pause();
+        }
       }
     }
+  }
+
+  /***上一曲**/
+  onPrev() {
+    if (!this.songReady) { return; }
+    if (this.playList.length === 1) {
+      this.loop();
+      return;
+    }
+    const index = this.currentIndex - 1 < 0 ? this.playList.length - 1 : this.currentIndex - 1;
+    this.updateIndex(index);
+  }
+  /***下一曲**/
+  onNext() {
+    if (!this.songReady) { return; }
+    if (this.playList.length === 1) {
+      this.loop();
+      return;
+    }
+    const index = this.currentIndex + 1 > this.playList.length ? 0 : this.currentIndex + 1;
+    this.updateIndex(index);
+  }
+
+  private updateIndex(index: number) {
+    this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
+    this.songReady = false;
+  }
+
+  private loop() {
+    this.audioEl.currentTime = 0;
+    this.play();
   }
 
 }

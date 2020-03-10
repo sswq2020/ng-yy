@@ -6,9 +6,9 @@
   <div class="container">
     <div class="wrap">
       <div class="btns">
-        <i class="prev"></i>
+        <i class="prev" (click)="onPrev()"></i>
         <i class="toggle"  [class.playing]="playing" (click)="onToggle()"></i>
-        <i class="next"></i>
+        <i class="next" (click)="onNext()"></i>
       </div>
       <div class="head">
         <img [src]="picUrl"/>
