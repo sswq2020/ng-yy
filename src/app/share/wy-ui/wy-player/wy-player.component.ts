@@ -18,13 +18,14 @@ export class WyPlayerComponent implements OnInit {
   /***获取audio的DOM,上面nativeElement属性**/
   private audioEl: HTMLAudioElement;
 
+  /***播放器滑块百分比**/
   percent = 0;
+  /***播放器缓冲的百分比**/
+  bufferPercent = 0;
 
   sliderVericalValue = 22;
 
   Vertical = SiderDirection.Vertical;
-
-  bufferOffet = 70;
 
   songList: Song[];
   playList: Song[];
@@ -85,10 +86,15 @@ export class WyPlayerComponent implements OnInit {
   get picUrl(): string {
     return this.currentSong ? this.currentSong.al.picUrl : '//s4.music.126.net/style/web2/img/default/default_album.jpg';
   }
-
+  /***歌曲播放中,DOM返回的currentTime经过处理赋值给滑动组件的slideValue**/
   onTimeUpdate(e: Event) {
     this.currentTime = (e.target as HTMLAudioElement).currentTime;
     this.percent = (this.currentTime / this.duration) * 100;
+    const buffered = this.audioEl.buffered;
+    if (buffered.length && this.bufferPercent < 100) {
+      this.bufferPercent = (buffered.end(0) / this.duration) * 100;
+    }
+
   }
 
   onToggle() {
@@ -134,12 +140,12 @@ export class WyPlayerComponent implements OnInit {
     this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
     this.songReady = false;
   }
-
+  /***循环播放**/
   private loop() {
     this.audioEl.currentTime = 0;
     this.play();
   }
-
+  /***手动拖拽滑动,赋值给audio的DOM的currentTime**/
   onPercentChange(per) {
     this.audioEl.currentTime = this.duration * (per / 100);
   }
