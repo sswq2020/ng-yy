@@ -1,7 +1,7 @@
 import {
   Component, OnInit, ViewEncapsulation,
   ChangeDetectionStrategy, ViewChild, ElementRef,
-  Input, Inject, ChangeDetectorRef, forwardRef
+  Input, Inject, ChangeDetectorRef, forwardRef, Output, EventEmitter
 } from '@angular/core';
 import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
@@ -37,6 +37,9 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
   @Input() wyMin = 0;
   @Input() wyMax = 100;
   @Input() bufferOffet: sliderValue = 0;
+
+
+  @Output() wyOnAfterChange = new EventEmitter<sliderValue>();
 
   /***是否正在滑动,默认不滑动**/
   isDragging = false;
@@ -179,6 +182,7 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
 
   /***订阅end时的回调函数**/
   private onDragEnd() {
+    this.wyOnAfterChange.emit(this.value);
     this.toggleDragMoving(false);
     this.cdr.markForCheck();
   }

@@ -18,7 +18,7 @@ export class WyPlayerComponent implements OnInit {
   /***获取audio的DOM,上面nativeElement属性**/
   private audioEl: HTMLAudioElement;
 
-  sliderValue = 0;
+  percent = 0;
 
   sliderVericalValue = 22;
 
@@ -88,7 +88,7 @@ export class WyPlayerComponent implements OnInit {
 
   onTimeUpdate(e: Event) {
     this.currentTime = (e.target as HTMLAudioElement).currentTime;
-    this.sliderValue = (this.currentTime / this.duration) * 100;
+    this.percent = (this.currentTime / this.duration) * 100;
   }
 
   onToggle() {
