@@ -39,13 +39,13 @@
         <i class="share" title="分享"></i>
       </div>
       <div class="ctrl">
-        <i class="volume" title="音量">{{sliderVericalValue}}</i>
+        <i class="volume" (click)="toggleVolumnPanel()" title="音量"></i>
         <i class="loop" title="循环"></i>
         <p class="open">
           <span></span>
         </p>
-        <div class="control-vol">
-          <app-wy-slider [(ngModel)]="sliderVericalValue" [wyVertical]="Vertical"></app-wy-slider>
+        <div class="control-vol" [hidden]="!showVolumnPanel">
+          <app-wy-slider  (ngModelChange)="onVolumeChange($event)" [(ngModel)]="volume" [wyVertical]="Vertical"></app-wy-slider>
         </div>
       </div>
     </div>

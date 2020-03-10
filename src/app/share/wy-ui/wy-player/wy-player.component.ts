@@ -22,8 +22,10 @@ export class WyPlayerComponent implements OnInit {
   percent = 0;
   /***播放器缓冲的百分比**/
   bufferPercent = 0;
-
-  sliderVericalValue = 22;
+  /***音量**/
+  volume = 22;
+  /***是否显示面板**/
+  showVolumnPanel = false;
 
   Vertical = SiderDirection.Vertical;
 
@@ -146,8 +148,16 @@ export class WyPlayerComponent implements OnInit {
     this.play();
   }
   /***手动拖拽滑动,赋值给audio的DOM的currentTime**/
-  onPercentChange(per) {
+  onPercentChange(per: number) {
     this.audioEl.currentTime = this.duration * (per / 100);
+  }
+  /***控制音量,audio的DOM的音量时0,1区间**/
+  onVolumeChange(vol: number) {
+    this.audioEl.volume = vol / 100;
+  }
+
+  toggleVolumnPanel() {
+    this.showVolumnPanel = !this.showVolumnPanel;
   }
 
 }
