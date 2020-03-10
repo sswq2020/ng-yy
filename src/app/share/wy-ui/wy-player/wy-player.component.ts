@@ -149,7 +149,10 @@ export class WyPlayerComponent implements OnInit {
   }
   /***手动拖拽滑动,赋值给audio的DOM的currentTime**/
   onPercentChange(per: number) {
-    this.audioEl.currentTime = this.duration * (per / 100);
+    // 只能在当前有歌曲的时候,再赋值DOM的currentTime*
+    if (this.currentSong) {
+      this.audioEl.currentTime = this.duration * (per / 100);
+    }
   }
   /***控制音量,audio的DOM的音量时0,1区间**/
   onVolumeChange(vol: number) {
