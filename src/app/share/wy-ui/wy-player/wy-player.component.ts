@@ -17,7 +17,7 @@ export class WyPlayerComponent implements OnInit {
   /***获取audio的DOM,上面nativeElement属性**/
   private audioEl: HTMLAudioElement;
 
-  sliderValue = 35;
+  sliderValue = 0;
 
   sliderVericalValue = 22;
 
@@ -28,7 +28,15 @@ export class WyPlayerComponent implements OnInit {
   songList: Song[];
   playList: Song[];
   currentIndex: number;
-  currentSong: Song | null;
+  currentSong: Song;
+  /***歌曲总时长**/
+  duration: number;
+  /***歌曲实时播放的进度时间**/
+  currentTime: number;
+  /***播放状态**/
+  playing = false;
+  /***是否可以播放**/
+  songReady = false;
 
   constructor(private store$: Store<AppStoreModule>) {
     const appStore$ = this.store$.pipe(select(getPlayer));
@@ -56,19 +64,40 @@ export class WyPlayerComponent implements OnInit {
   }
 
   private watchCurrentSong(song: Song): void {
-    this.currentSong = song;
+    if (song) {
+      this.currentSong = song;
+      this.duration = song.dt / 1000;
+    }
   }
 
   onCanplay() {
+    this.songReady = true;
     this.play();
   }
 
   private play() {
     this.audioEl.play();
+    this.playing = true;
   }
 
   get picUrl(): string {
     return this.currentSong ? this.currentSong.al.picUrl : '//s4.music.126.net/style/web2/img/default/default_album.jpg';
+  }
+
+  onTimeUpdate(e: Event) {
+    this.currentTime = (e.target as HTMLAudioElement).currentTime;
+    this.sliderValue = (this.currentTime / this.duration) * 100;
+  }
+
+  onToggle() {
+    if (this.songReady) {
+      this.playing = !this.playing;
+      if (this.playing) {
+        this.audioEl.play();
+      } else {
+        this.audioEl.pause();
+      }
+    }
   }
 
 }
