@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Inject } from '@angular/core';
 import { SiderDirection } from '../wy-slider/wy-slider-types';
 import { Store, select } from '@ngrx/store';
 import { AppStoreModule } from 'src/app/store';
@@ -6,6 +6,8 @@ import { getSongList, getPlayer, getPlayList, getCurrentIndex, getPlayMode, getC
 import { Song } from 'src/app/services/data-types/common.types';
 import { PlayMode } from './player-types';
 import { setCurrentIndex } from 'src/app/store/actions/player.actions';
+import { Subscription, fromEvent } from 'rxjs';
+import { DOCUMENT } from '@angular/common';
 @Component({
   selector: 'app-wy-player',
   templateUrl: './wy-player.component.html',
@@ -24,10 +26,14 @@ export class WyPlayerComponent implements OnInit {
   bufferPercent = 0;
   /***音量**/
   volume = 22;
-  /***是否显示面板**/
+  /***是否显示音量面板**/
   showVolumnPanel = false;
-
+  /***是否点击音量面板本身**/
+  selfClick = false;
+  /***自定义常量,垂直**/
   Vertical = SiderDirection.Vertical;
+
+  private winClick: Subscription | null;
 
   songList: Song[];
   playList: Song[];
@@ -42,7 +48,7 @@ export class WyPlayerComponent implements OnInit {
   /***是否可以播放**/
   songReady = false;
 
-  constructor(private store$: Store<AppStoreModule>) {
+  constructor(private store$: Store<AppStoreModule>, @Inject(DOCUMENT) private doc: Document, ) {
     const appStore$ = this.store$.pipe(select(getPlayer));
     appStore$.pipe(select(getSongList)).subscribe(list => this.watchList(list, 'songList'));
     appStore$.pipe(select(getPlayList)).subscribe(list => this.watchList(list, 'playList'));
@@ -159,8 +165,55 @@ export class WyPlayerComponent implements OnInit {
     this.audioEl.volume = vol / 100;
   }
 
-  toggleVolumnPanel() {
+  toggleVolPanel(e: MouseEvent) {
+    e.stopPropagation();
+    this.togglePanel();
+  }
+
+
+  /**
+   * 1.面板初始状态是隐藏的,showVolumnPanel为false
+   *
+   * 2.这时通过点击togglePanel,面板显示,showVolumnPanel为true,同时执行bindDocumentClickListener函数
+   *
+   * 3.winClick一开始为null,进行窗口流的绑定订阅
+   *
+   * 4.如果在面板之外点击,selfClick为false,订阅函数中,面板消失,并执行取消订阅流,winClick赋值null
+   *
+   * 5.如果在面板之内点击,如果不是点击togglePanel的话,selfClick先是为true,后面因为在订阅函数中又赋值selfClick为false,这样面板就不会消失,流依然存在
+   *
+   * 6.如果在面板之内点击,如果是点击togglePanel的话,面板消失,还是会取消订阅流,winClick赋值null
+   */
+  togglePanel() {
     this.showVolumnPanel = !this.showVolumnPanel;
+    if (this.showVolumnPanel) {
+      // 当音量面板显示的时候,绑定一个全局的click事件
+      this.bindDocumentClickListener();
+    } else {
+      // 当音量面板隐藏的时候,解绑click事件
+      this.unbindDocumentClickListener();
+    }
+  }
+
+  /***绑定全局点击事件流并且订阅并赋值给winClick**/
+  private bindDocumentClickListener() {
+    if (!this.winClick) {
+      this.winClick = fromEvent(this.doc, 'click').subscribe(() => {
+        if (!this.selfClick) {
+          this.showVolumnPanel = false;
+          this.unbindDocumentClickListener();
+        }
+        this.selfClick = false;
+      });
+    }
+  }
+
+  /***取消订阅全局点击事件流**/
+  private unbindDocumentClickListener() {
+    if (this.winClick) {
+      this.winClick.unsubscribe();
+      this.winClick = null;
+    }
   }
 
 }
