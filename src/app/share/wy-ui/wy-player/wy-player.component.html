@@ -55,5 +55,6 @@
       [src]="currentSong?.url"
       (canplay)="onCanplay()"
       (timeupdate)="onTimeUpdate($event)"
+      (ended)="onEnd()"
   ></audio>
 </div>

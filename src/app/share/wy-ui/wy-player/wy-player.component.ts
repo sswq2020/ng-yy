@@ -138,6 +138,16 @@ export class WyPlayerComponent implements OnInit {
     }
   }
 
+  onEnd() {
+    this.playing = false;
+    if (this.mode.type === 'singleLoop') {
+      this.loop();
+    } else {
+      this.onNext();
+    }
+  }
+
+
   /***上一曲**/
   onPrev() {
     if (!this.songReady) { return; }
@@ -246,10 +256,10 @@ export class WyPlayerComponent implements OnInit {
 
   resetCurrentIndex(list: Song[]) {
     const index = list.findIndex((item) => {
-        return item.id === this.currentSong.id;
+      return item.id === this.currentSong.id;
     });
     this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
-}
+  }
 
 
 }
