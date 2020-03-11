@@ -5,9 +5,18 @@ import { AppStoreModule } from 'src/app/store';
 import { getSongList, getPlayer, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from 'src/app/store/selectors/player.selector';
 import { Song } from 'src/app/services/data-types/common.types';
 import { PlayMode } from './player-types';
-import { setCurrentIndex } from 'src/app/store/actions/player.actions';
+import { setCurrentIndex, setPlayMode, setPlayList } from 'src/app/store/actions/player.actions';
 import { Subscription, fromEvent } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
+import { shuffle } from 'src/app/utils';
+
+const modeTypes: PlayMode[] = [
+  { type: 'loop', label: '循环' },
+  { type: 'random', label: '随机' },
+  { type: 'singleLoop', label: '单曲循环' }
+];
+
+
 @Component({
   selector: 'app-wy-player',
   templateUrl: './wy-player.component.html',
@@ -47,6 +56,10 @@ export class WyPlayerComponent implements OnInit {
   playing = false;
   /***是否可以播放**/
   songReady = false;
+  /***播放模式**/
+  mode: PlayMode;
+  /***点击模式的次数**/
+  modeCount = 0;
 
   constructor(private store$: Store<AppStoreModule>, @Inject(DOCUMENT) private doc: Document, ) {
     const appStore$ = this.store$.pipe(select(getPlayer));
@@ -64,6 +77,7 @@ export class WyPlayerComponent implements OnInit {
 
   private watchList(list: Song[], type: string) {
     this[type] = list;
+    console.log(type, list);
   }
 
   private watchCurrentIndex(index: number) {
@@ -72,6 +86,7 @@ export class WyPlayerComponent implements OnInit {
 
   private watchPlayMode(mode: PlayMode) {
     console.log(mode);
+    this.mode = mode;
   }
 
   private watchCurrentSong(song: Song): void {
@@ -215,5 +230,26 @@ export class WyPlayerComponent implements OnInit {
       this.winClick = null;
     }
   }
+
+  changeMode() {
+    this.modeCount = this.modeCount + 1;
+    const count = this.modeCount % 3;
+    const mode = modeTypes[count];
+    this.store$.dispatch(setPlayMode({ playMode: mode }));
+    let list = null;
+    if (mode.type === 'random') {
+      list = shuffle(this.songList);
+      this.resetCurrentIndex(list);
+      this.store$.dispatch(setPlayList({ playList: list }));
+    }
+  }
+
+  resetCurrentIndex(list: Song[]) {
+    const index = list.findIndex((item) => {
+        return item.id === this.currentSong.id;
+    });
+    this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
+}
+
 
 }

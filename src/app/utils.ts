@@ -29,3 +29,18 @@ export function pad(num: number, n: number = 2) {
   }
   return str;
 }
+
+export function shuffle<T>(arr: T[]): T[] {
+  const arrList = arr.slice(); // 小技巧相当于原数组的拷贝,原数组不变
+  for (let i = 0; i < arrList.length; i++) {
+    const j = getRandomInt(0, i);
+    const t = arrList[i];
+    arrList[i] = arrList[j];
+    arrList[j] = t;
+  }
+  return arrList;
+}
+
+function getRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}

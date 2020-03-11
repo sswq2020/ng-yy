@@ -40,7 +40,7 @@
       </div>
       <div class="ctrl">
         <i class="volume" (click)="toggleVolPanel($event)" title="音量"></i>
-        <i class="loop" title="循环"></i>
+        <i [ngClass]="mode.type" [title]="mode.label"  (click)="changeMode()"></i>
         <p class="open">
           <span></span>
         </p>
