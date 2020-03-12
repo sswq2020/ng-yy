@@ -37,6 +37,8 @@ export class WyPlayerComponent implements OnInit {
   volume = 22;
   /***是否显示音量面板**/
   showVolumnPanel = false;
+  /***是否显示播放面板**/
+  showPanel = false;
   /***是否点击音量面板本身**/
   selfClick = false;
   /***自定义常量,垂直**/
@@ -194,9 +196,14 @@ export class WyPlayerComponent implements OnInit {
     this.audioEl.volume = vol / 100;
   }
 
-  toggleVolPanel(e: MouseEvent) {
-    e.stopPropagation();
-    this.togglePanel();
+  toggleVolPanel() {
+    this.togglePanel('showVolumnPanel');
+  }
+
+  toggleListPanel() {
+    if (this.songList.length) {
+      this.togglePanel('showPanel');
+    }
   }
 
 
@@ -213,9 +220,9 @@ export class WyPlayerComponent implements OnInit {
    *
    * 6.如果在面板之内点击,如果是点击togglePanel的话,面板消失,还是会取消订阅流,winClick赋值null
    */
-  togglePanel() {
-    this.showVolumnPanel = !this.showVolumnPanel;
-    if (this.showVolumnPanel) {
+  togglePanel(type: string) {
+    this[type] = !this[type];
+    if (this[type]) {
       // 当音量面板显示的时候,绑定一个全局的click事件
       this.bindDocumentClickListener();
     } else {
@@ -230,6 +237,7 @@ export class WyPlayerComponent implements OnInit {
       this.winClick = fromEvent(this.doc, 'click').subscribe(() => {
         if (!this.selfClick) {
           this.showVolumnPanel = false;
+          this.showPanel = false;
           this.unbindDocumentClickListener();
         }
         this.selfClick = false;
