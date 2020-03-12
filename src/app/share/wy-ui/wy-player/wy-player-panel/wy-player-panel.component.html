@@ -10,7 +10,7 @@
         <i class="icon trush" title="清除"></i>清除
       </div>
       <p class="playing-name">{{currentSong?.name}}</p>
-      <i class="icon close"></i>
+      <i class="icon close" (click)="closed.emit()"></i>
     </div>
   </div>
 
@@ -19,7 +19,7 @@
     <div class="mask"></div>
     <div class="list-wrap">
       <ul>
-        <li *ngFor="let song of songList; index as i" [class.current]="song.id === currentSong.id">
+        <li *ngFor="let song of songList; index as i" [class.current]="song.id === currentSong.id" (click)="changeCurrentSong(i)">
           <i class="col arrow"></i>
           <div class="col name ellipsis">{{song.name}}</div>
           <div class="col icons">
