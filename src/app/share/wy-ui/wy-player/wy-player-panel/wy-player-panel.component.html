@@ -1,4 +1,4 @@
-<div class="play-panel show">
+<div class="play-panel" [class.show]="show">
   <div class="hd">
     <div class="hdc">
       <h4>播放列表(<span>{{songList.length}}</span>)</h4>
@@ -7,10 +7,38 @@
       </div>
       <div class="line"></div>
       <div class="clear-all">
-        <i class="icon trush" title="清除全部"></i>清除全部
+        <i class="icon trush" title="清除"></i>清除
       </div>
       <p class="playing-name">{{currentSong?.name}}</p>
       <i class="icon close"></i>
     </div>
+  </div>
+
+  <div class="bd">
+    <img src="//music.163.com/api/img/blur/109951163826278397" class="imgbg" />
+    <div class="mask"></div>
+    <div class="list-wrap">
+      <ul>
+        <li *ngFor="let song of songList; index as i" [class.current]="song.id === currentSong.id">
+          <i class="col arrow"></i>
+          <div class="col name ellipsis">{{song.name}}</div>
+          <div class="col icons">
+            <i class="icon like" title="收藏"></i>
+            <i class="icon share" title="分享"></i>
+            <i class="icon trush" title="删除"></i>
+          </div>
+          <div class="singers clearfix ellipsis">
+            <div class="singer-item" *ngFor="let singer of song.ar;last as isLast">
+              <a class="col ellipsis" >{{singer.name}}</a>
+              <span [hidden]="isLast">/</span>
+            </div>
+          </div>
+          <div class="col duration">{{song.dt / 1000 | formatTime}}</div>
+          <div class="col link"></div>
+        </li>
+      </ul>
+      <!-- <ul>歌词</ul> -->
+    </div>
+
   </div>
 </div>
