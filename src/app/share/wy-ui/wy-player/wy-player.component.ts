@@ -90,9 +90,13 @@ export class WyPlayerComponent implements OnInit {
   }
 
   private watchCurrentSong(song: Song): void {
-    if (song) {
+    if (song && song.url) {
       this.currentSong = song;
       this.duration = song.dt / 1000;
+    } else {
+      if (this.currentIndex < this.playList.length -1) {
+        this.updateIndex(this.currentIndex + 1);
+      }
     }
   }
 
