@@ -48,6 +48,7 @@
           <app-wy-slider  (ngModelChange)="onVolumeChange($event)" [(ngModel)]="volume" [wyVertical]="Vertical"></app-wy-slider>
         </div>
       </div>
+      <app-wy-player-panel [currentSong]="currentSong" [songList]="songList"></app-wy-player-panel>
     </div>
   </div>
   <audio
