@@ -17,7 +17,7 @@
   <div class="bd">
     <img src="//music.163.com/api/img/blur/109951163826278397" class="imgbg" />
     <div class="mask"></div>
-    <div class="list-wrap">
+    <app-wy-scroll class="list-wrap" [data]="songList">
       <ul>
         <li *ngFor="let song of songList; index as i" [class.current]="song.id === currentSong.id" (click)="changeCurrentSong(i)">
           <i class="col arrow"></i>
@@ -38,7 +38,7 @@
         </li>
       </ul>
       <!-- <ul>歌词</ul> -->
-    </div>
+    </app-wy-scroll>
 
   </div>
 </div>
