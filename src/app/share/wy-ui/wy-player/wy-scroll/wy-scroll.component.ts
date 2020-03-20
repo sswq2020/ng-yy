@@ -1,4 +1,15 @@
-import { Component, OnInit, OnChanges,ViewEncapsulation, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit, Input, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  SimpleChanges
+} from '@angular/core';
 import BScroll from '@better-scroll/core';
 
 @Component({
@@ -12,7 +23,7 @@ import BScroll from '@better-scroll/core';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WyScrollComponent implements OnInit, AfterViewInit,OnChanges {
+export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   private bs: BScroll;
 
   @Input() data: any[];
@@ -26,6 +37,10 @@ export class WyScrollComponent implements OnInit, AfterViewInit,OnChanges {
   }
 
   ngOnInit(): void {
+  }
+
+  scrollToElement(...args) {
+    this.bs.scrollToElement.apply(this.bs, args);
   }
 
   private refresh() {
