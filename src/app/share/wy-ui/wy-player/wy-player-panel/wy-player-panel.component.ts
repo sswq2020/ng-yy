@@ -30,6 +30,8 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
   @Input() show: boolean;
   @Input() currentIndex: number;
   @Output() closed = new EventEmitter<void>();
+  /***BScroll发射滚动的Y值,Y值为负**/
+  scrollY = 0;
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
 
@@ -45,36 +47,38 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['songList']) {
+    if (changes.songList) {
       console.info('songList', this.songList);
     }
 
-    if (changes['currentSong']) {
+    if (changes.currentSong) {
       console.info('currentSong', this.currentSong);
     }
 
-    if (changes['currentIndex']) {
+    if (changes.currentIndex) {
       if (this.currentIndex > -1 && this.show) {
         this.scrolltoLi(this.currentIndex);
       }
     }
 
-    if (changes['show']) {
-      if (!changes['show'].firstChange && this.show && this.currentIndex > -1) {
+
+    if (changes.show) {
+      if (!changes.show.firstChange && this.show && this.currentIndex > -1) {
         this.wyScroll.first.refreshScroll();
         setTimeout(() => {
           this.scrolltoLi(this.currentIndex);
-        }, 50)
-        console.log('#panelUl', this.panelUl.nativeElement.querySelectorAll('li'));
+        }, 50);
       }
-      console.info('currentSong', this.currentSong);
     }
-
   }
 
   private scrolltoLi(index) {
-    const dom = this.panelUl.nativeElement.querySelectorAll('li')[index];
-    this.wyScroll.first.scrollToElement(dom, 500);
+    const dom = this.panelUl.nativeElement.querySelectorAll('li')[index] as HTMLElement;
+    const offsetTop = dom.offsetTop;
+    const offsetHeight = dom.offsetHeight;
+    if (offsetTop - Math.abs(this.scrollY) > offsetHeight * 5 || offsetTop < Math.abs(this.scrollY)) {
+      this.wyScroll.first.scrollToElement(dom, 500, false, false);
+    }
   }
 
   changeCurrentSong(index: number) {
