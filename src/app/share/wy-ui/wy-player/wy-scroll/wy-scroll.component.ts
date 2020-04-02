@@ -8,7 +8,9 @@ import {
   ElementRef,
   AfterViewInit,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  Output,
+  EventEmitter
 } from '@angular/core';
 import BScroll from '@better-scroll/core';
 
@@ -27,13 +29,14 @@ export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   private bs: BScroll;
 
   @Input() data: any[];
+  @Output() private scrollEnd = new EventEmitter<number>();
 
   @ViewChild('wrap', { static: true }) private wrapRef: ElementRef;
   constructor() { }
 
   ngAfterViewInit(): void {
-    console.log(this.wrapRef.nativeElement.offsetHeight)
     this.bs = new BScroll(this.wrapRef.nativeElement);
+    this.bs.on('scrollEnd', ({y}) => this.scrollEnd.emit(y));
   }
 
   ngOnInit(): void {
@@ -54,12 +57,8 @@ export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes.data) {
       this.refreshScroll();
     }
-
   }
-
-
-
 }
