@@ -74,12 +74,10 @@ export class WyPlayerComponent implements OnInit {
 
   ngOnInit(): void {
     this.audioEl = this.audio.nativeElement;
-    console.log(this.playList);
   }
 
   private watchList(list: Song[], type: string) {
     this[type] = list;
-    console.log(type, list);
   }
 
   private watchCurrentIndex(index: number) {
@@ -87,7 +85,6 @@ export class WyPlayerComponent implements OnInit {
   }
 
   private watchPlayMode(mode: PlayMode) {
-    console.log(mode);
     this.mode = mode;
   }
 
