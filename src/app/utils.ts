@@ -1,3 +1,5 @@
+import { Song } from './services/data-types/common.types';
+
 /***数组是否包含某项**/
 export function inArr(arr: any[], target: any): boolean {
   return arr.indexOf(target) > -1;
@@ -43,4 +45,11 @@ export function shuffle<T>(arr: T[]): T[] {
 
 function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+/***查找歌曲的索引**/
+export function _findIndex(list: Song[], song: Song): number {
+  return list.findIndex((item) => {
+    return item.id === song.id;
+  });
 }

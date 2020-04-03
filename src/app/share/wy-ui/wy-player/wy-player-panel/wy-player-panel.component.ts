@@ -17,6 +17,7 @@ import { setCurrentIndex } from 'src/app/store/actions/player.actions';
 import { Store } from '@ngrx/store';
 import { AppStoreModule } from 'src/app/store';
 import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
+import { _findIndex } from 'src/app/utils';
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -26,9 +27,9 @@ import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
 export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input() songList: Song[];
+  @Input() playList: Song[];
   @Input() currentSong: Song;
   @Input() show: boolean;
-  @Input() currentIndex: number;
   @Output() closed = new EventEmitter<void>();
   /***BScroll发射滚动的Y值,Y值为负**/
   scrollY = 0;
@@ -52,22 +53,22 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
     }
 
     if (changes.currentSong) {
-      console.info('currentSong', this.currentSong);
-    }
-
-    if (changes.currentIndex) {
-      if (this.currentIndex > -1 && this.show) {
-        this.scrolltoLi(this.currentIndex);
+      const index = _findIndex(this.songList, this.currentSong);
+      console.log('songList', index);
+      console.log('songList', this.songList);
+      if (index > -1 && this.show) {
+        this.scrolltoLi(index);
       }
     }
 
-
     if (changes.show) {
-      if (!changes.show.firstChange && this.show && this.currentIndex > -1) {
+      const index = _findIndex(this.songList, this.currentSong);
+      console.log('songList', index);
+      if (!changes.show.firstChange && this.show && index > -1) {
         this.wyScroll.first.refreshScroll();
         setTimeout(() => {
-          this.scrolltoLi(this.currentIndex);
-        }, 50);
+          this.scrolltoLi(index);
+        }, 100);
       }
     }
   }
@@ -81,8 +82,10 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
     }
   }
 
-  changeCurrentSong(index: number) {
-    console.log(index);
+  changeCurrentSong(song: Song) {
+    const index = _findIndex(this.playList, song);
+    console.log('playList', index);
+    console.log('playList', this.playList);
     this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
   }
 
