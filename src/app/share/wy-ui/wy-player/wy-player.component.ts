@@ -8,7 +8,7 @@ import { PlayMode } from './player-types';
 import { setCurrentIndex, setPlayMode, setPlayList } from 'src/app/store/actions/player.actions';
 import { Subscription, fromEvent } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
-import { shuffle } from 'src/app/utils';
+import { shuffle, _findIndex } from 'src/app/utils';
 
 const modeTypes: PlayMode[] = [
   { type: 'loop', label: '循环' },
@@ -264,9 +264,7 @@ export class WyPlayerComponent implements OnInit {
   }
 
   resetCurrentIndex(list: Song[]) {
-    const index = list.findIndex((item) => {
-      return item.id === this.currentSong.id;
-    });
+    const index = _findIndex(list, this.currentSong);
     this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
   }
 

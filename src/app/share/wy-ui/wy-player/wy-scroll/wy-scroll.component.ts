@@ -13,6 +13,7 @@ import {
   EventEmitter
 } from '@angular/core';
 import BScroll from '@better-scroll/core';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-wy-scroll',
@@ -51,9 +52,9 @@ export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   refreshScroll() {
-    setTimeout(() => {
+    timer(50).subscribe(() => {
       this.refresh();
-    }, 50);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

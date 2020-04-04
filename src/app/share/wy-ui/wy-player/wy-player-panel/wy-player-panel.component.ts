@@ -18,6 +18,7 @@ import { Store } from '@ngrx/store';
 import { AppStoreModule } from 'src/app/store';
 import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
 import { _findIndex } from 'src/app/utils';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -66,19 +67,19 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
       console.log('songList', index);
       if (!changes.show.firstChange && this.show && index > -1) {
         this.wyScroll.first.refreshScroll();
-        setTimeout(() => {
-          this.scrolltoLi(index);
-        }, 100);
+        timer(100).subscribe(() => {
+          this.scrolltoLi(index, 0);
+        });
       }
     }
   }
 
-  private scrolltoLi(index) {
+  private scrolltoLi(index, delay = 500) {
     const dom = this.panelUl.nativeElement.querySelectorAll('li')[index] as HTMLElement;
     const offsetTop = dom.offsetTop;
     const offsetHeight = dom.offsetHeight;
     if (offsetTop - Math.abs(this.scrollY) > offsetHeight * 5 || offsetTop < Math.abs(this.scrollY)) {
-      this.wyScroll.first.scrollToElement(dom, 500, false, false);
+      this.wyScroll.first.scrollToElement(dom, delay, false, false);
     }
   }
 
