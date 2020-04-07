@@ -58,7 +58,12 @@ export class SongService {
   getLyric(id: number): Observable<Lyric> {
     const params = new HttpParams().set('id', id.toString());
     return this.http.get(`${this.uri}lyric`, {params}).pipe(
-    map(res => res as Lyric));
+    map((res: {[key: string]: {lyric: string}}) => {
+      return {
+        lyric: res.lrc.lyric,
+        tlyric: res.tlyric.lyric
+      };
+    }));
   }
 
 

@@ -47,7 +47,7 @@ export interface SongUrl {
 
 /***歌词**/
 export interface Lyric {
-  lrc: string;
+  lyric: string;
   tlyric: string;
 }
 
