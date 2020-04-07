@@ -45,5 +45,10 @@ export interface SongUrl {
   url: string;
 }
 
+/***歌词**/
+export interface Lyric {
+  lrc: string;
+  tlyric: string;
+}
 
 export type sliderValue = number | null;

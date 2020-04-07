@@ -1,7 +1,7 @@
 import { Injectable, inject, Inject } from '@angular/core';
 import { ServicesModule, API_CONFIG_BASE_URL } from './services.module';
 import { Observable, observable } from 'rxjs';
-import { SongUrl, Song } from './data-types/common.types';
+import { SongUrl, Song, Lyric } from './data-types/common.types';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/internal/operators';
 
@@ -54,6 +54,12 @@ export class SongService {
     return list;
   }
 
+  /***根据id字符串返回歌曲歌词,可能包含翻译**/
+  getLyric(id: number): Observable<Lyric> {
+    const params = new HttpParams().set('id', id.toString());
+    return this.http.get(`${this.uri}lyric`, {params}).pipe(
+    map(res => res as Lyric));
+  }
 
 
 }
