@@ -19,6 +19,8 @@ import { AppStoreModule } from 'src/app/store';
 import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
 import { _findIndex } from 'src/app/utils';
 import { timer } from 'rxjs';
+import { SongService } from 'src/app/services/song.service';
+import { WyLyric, BaseLyric } from './wy-lyric';
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -35,11 +37,13 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
   /***BScroll发射滚动的Y值,Y值为负**/
   scrollY = 0;
 
+  currentLyric: BaseLyric[];
+
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
 
   @ViewChild('panelUl', { static: true }) private panelUl: ElementRef;
 
-  constructor(private store$: Store<AppStoreModule>) { }
+  constructor(private store$: Store<AppStoreModule>, private songServe: SongService) { }
 
   ngAfterViewInit(): void {
     console.log('#panelUl', this.panelUl.nativeElement);
@@ -50,13 +54,12 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.songList) {
-      console.info('songList', this.songList);
     }
 
     if (changes.currentSong) {
+      if (!this.currentSong) { return; }
       const index = _findIndex(this.songList, this.currentSong);
-      console.log('songList', index);
-      console.log('songList', this.songList);
+      this.updateLyric();
       if (index > -1 && this.show) {
         this.scrolltoLi(index);
       }
@@ -64,9 +67,9 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
 
     if (changes.show) {
       const index = _findIndex(this.songList, this.currentSong);
-      console.log('songList', index);
       if (!changes.show.firstChange && this.show && index > -1) {
         this.wyScroll.first.refreshScroll();
+        this.wyScroll.last.refreshScroll();
         timer(100).subscribe(() => {
           this.scrolltoLi(index, 0);
         });
@@ -85,9 +88,15 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
 
   changeCurrentSong(song: Song) {
     const index = _findIndex(this.playList, song);
-    console.log('playList', index);
-    console.log('playList', this.playList);
     this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
+  }
+
+  private updateLyric() {
+    this.songServe.getLyric(this.currentSong.id).subscribe(res => {
+      const lyric = new WyLyric(res);
+      this.currentLyric = lyric.getLines();
+      console.log(this.currentLyric);
+    });
   }
 
 }
