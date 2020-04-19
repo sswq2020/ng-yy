@@ -62,6 +62,7 @@ export class WySliderComponent implements OnInit, ControlValueAccessor {
   private dragEndCancel: Subscription | null;
   // #endregion
 
+  //  ChangeDetectorRef在OnPush策略下 https://www.cnblogs.com/lskzj/p/11143233.html
   constructor(@Inject(DOCUMENT) private doc: Document, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
