@@ -60,8 +60,8 @@ export class SongService {
     return this.http.get(`${this.uri}lyric`, {params}).pipe(
     map((res: {[key: string]: {lyric: string}}) => {
       return {
-        lyric: res.lrc.lyric,
-        tlyric: res.tlyric.lyric
+        lyric:  res.lrc && res.lrc.lyric || null,
+        tlyric: res.tlyric && res.tlyric.lyric || null
       };
     }));
   }
