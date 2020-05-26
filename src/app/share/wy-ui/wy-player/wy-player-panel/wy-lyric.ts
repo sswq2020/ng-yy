@@ -3,7 +3,7 @@ import { from, zip, Observable } from 'rxjs';
 import { skip } from 'rxjs/internal/operators';
 
 // [03:56.234]
-const timeExp = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+const timeExp = /\[(\d{2}):(\d{2})(\.(\d{2,3}))?\]/;
 
 export interface BaseLyric {
   txt: string;
@@ -17,7 +17,7 @@ interface LyricLine extends BaseLyric {
 /**
  * 1.封装网易歌词类,从接口返回的歌词,一步步转换符合LyricLine类型的歌词
  *
- * 2.分成2种情况,一种是没有翻译的歌词,只有lyric,较为简单.另一种是原歌词和翻译歌词lyric和lyric,较为复杂,只分析第二种情况
+ * 2.分成2种情况,一种是没有翻译的歌词,只有lyric,较为简单.另一种是原歌词和翻译歌词lyric和tlyric,较为复杂,只分析第二种情况
  *
  * 3.无论是lyric.length >= tlyric.length,还是lyric.length < tlyric.length
  *
