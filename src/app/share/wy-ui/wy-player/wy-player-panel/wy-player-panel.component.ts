@@ -62,8 +62,8 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.playing) {
-      if(!changes.playing.firstChange && this.playing){
-        this.lyric.play()
+      if(!changes.playing.firstChange){
+        this.lyric && this.lyric.togglePlay(this.playing)
       }
     }
 
@@ -112,9 +112,9 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
       this.currentLyric = this.lyric.getLines();
       this.handleLyric();
       this.wyScroll.last.scrollTo(0,0) // 每次切歌时,歌词回滚第一行
-      if(this.playing){
-        this.lyric.play()
-      }
+      // if(this.playing){
+      //   this.lyric.play(0)
+      // }
     });
   }
 

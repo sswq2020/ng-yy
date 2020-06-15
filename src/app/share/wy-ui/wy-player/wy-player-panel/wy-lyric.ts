@@ -48,6 +48,10 @@ export class WyLyric {
 
   private startStamp:number
 
+  private pauseStamp:number
+
+  private timer:any
+
   handler = new Subject<Handler>()
 
   constructor(lrc: Lyric) {
@@ -141,16 +145,22 @@ export class WyLyric {
     }
 
     this.curNum = this.findCurNum(startTime)
-    this.startStamp = Date.now() - startTime;
+    const now = Date.now();
+    console.log(`this.startStamp = now - startTime = ${now} - ${startTime} = ${now - startTime}`)
+    this.startStamp = now - startTime;
     if(this.curNum < this.lines.length){
+      clearTimeout(this.timer)
       this.playReset()
     }
   }
 
   private playReset(){
     let line = this.lines[this.curNum]
-    const delay = line.time - (Date.now() - this.startStamp) // 这段理解可以看作一段后端请求时间过程翻版,两段歌词时间的间隔并不是单纯的相减
-    setTimeout(()=>{
+    const now = Date.now();
+    console.log(`delay = line.time - (now - this.startStamp) =
+     ${line.time} - (${now} - ${this.startStamp}) = ${line.time - (now - this.startStamp)}`)
+    const delay = line.time - (now - this.startStamp) // 这里想过没有为什么不用简单的方法,让两行歌词间隔作为delay?
+    this.timer = setTimeout(()=>{
       this.callHandler(this.curNum++);
       if(this.curNum < this.lines.length && this.playing){
         this.playReset()
@@ -159,6 +169,7 @@ export class WyLyric {
   }
 
   private callHandler(i:number){
+    console.log(i)
     this.handler.next({
       txt:this.lines[i].txt,
       txtCn:this.lines[i].txtCn,
@@ -168,11 +179,30 @@ export class WyLyric {
 
   /**
    * @description 根据time从this.lines找到第几行
-   * @param startTime 滚动滑块从暂停到开始的时间节点
+   * @param time
    */
-  findCurNum(startTime:number):number {
-    const index = this.lines.findIndex(line => startTime <= line.time)
+  findCurNum(time:number):number {
+    const index = this.lines.findIndex(line => time <= line.time)
     return index === -1 ? this.lines.length - 1: index;
   }
 
+  togglePlay(playing:boolean){
+  const now = Date.now()
+  this.playing = playing
+  if(playing){
+    const startTime = (this.pauseStamp || now) - (this.startStamp || now)
+    this.play(startTime)
+  }else {
+    this.stop();
+    this.pauseStamp = now
+    console.log('停止的时间',this.pauseStamp)
+  }
+}
+
+  stop(){
+    if(this.playing){
+      this.playing = false
+    }
+    clearTimeout(this.timer)
+  }
 }
