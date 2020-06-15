@@ -38,9 +38,14 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
   /***BScroll发射滚动的Y值,Y值为负**/
   scrollY = 0;
 
+  /***WyLyric类的实例**/
+  lyric:WyLyric;
+
+  /***实例化后通过getLines得到整个歌词数组**/
   currentLyric: BaseLyric[];
 
-  lyric:WyLyric;
+  /***当前歌词在第几行 **/
+  currentLineNum:number;
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
 
@@ -115,7 +120,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
 
   private handleLyric(){
     this.lyric.handler.subscribe(({lineNum})=>{
-      console.info(`lineNum:, ${lineNum}`)
+      this.currentLineNum = lineNum
     })
   }
 
