@@ -33,11 +33,14 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
   @Input() playList: Song[];
   @Input() currentSong: Song;
   @Input() show: boolean;
+  @Input() playing: boolean;
   @Output() closed = new EventEmitter<void>();
   /***BScroll发射滚动的Y值,Y值为负**/
   scrollY = 0;
 
   currentLyric: BaseLyric[];
+
+  lyric:WyLyric;
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
 
@@ -53,7 +56,10 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.songList) {
+    if (changes.playing) {
+      if(!changes.playing.firstChange && this.playing){
+        this.lyric.play()
+      }
     }
 
     if (changes.currentSong) {
@@ -91,14 +97,30 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges, AfterViewInit 
     this.store$.dispatch(setCurrentIndex({ currentIndex: index }));
   }
 
+  /**
+   * @description 更新歌词时需要做哪些事
+   */
   private updateLyric() {
     this.songServe.getLyric(this.currentSong.id).subscribe(res => {
       if (!res.lyric && !res.tlyric) { return; }
-      const lyric = new WyLyric(res);
-      this.currentLyric = lyric.getLines();
-      console.log(this.currentLyric);
+      this.lyric = new WyLyric(res);
+      this.currentLyric = this.lyric.getLines();
+      this.handleLyric();
+      this.wyScroll.last.scrollTo(0,0) // 每次切歌时,歌词回滚第一行
+      if(this.playing){
+        this.lyric.play()
+      }
     });
   }
+
+  private handleLyric(){
+    this.lyric.handler.subscribe(({lineNum})=>{
+      console.info(`lineNum:, ${lineNum}`)
+    })
+  }
+
+
+
 
 }
 

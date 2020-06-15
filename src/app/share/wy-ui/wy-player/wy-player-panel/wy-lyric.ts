@@ -1,5 +1,10 @@
+/**
+ * @description 封装歌词类,主要功能承担歌词展示和歌词滚动
+ * @author sswq
+ */
+
 import { Lyric } from 'src/app/services/data-types/common.types';
-import { from, zip, Observable } from 'rxjs';
+import { from, zip, Observable, Subject } from 'rxjs';
 import { skip } from 'rxjs/internal/operators';
 
 // [03:56.234]
@@ -14,7 +19,12 @@ interface LyricLine extends BaseLyric {
   time: number;
 }
 
+interface Handler extends BaseLyric {
+  lineNum: number;
+}
+
 /**
+ * @description
  * 1.封装网易歌词类,从接口返回的歌词,一步步转换符合LyricLine类型的歌词
  *
  * 2.分成2种情况,一种是没有翻译的歌词,只有lyric,较为简单.另一种是原歌词和翻译歌词lyric和tlyric,较为复杂,只分析第二种情况
@@ -32,6 +42,14 @@ export class WyLyric {
 
   private lines: LyricLine[] = [];
 
+  private playing = false;
+
+  private curNum:number
+
+  private startStamp:number
+
+  handler = new Subject<Handler>()
+
   constructor(lrc: Lyric) {
     this.lrc = lrc;
     this.init();
@@ -44,11 +62,16 @@ export class WyLyric {
     }
   }
 
+  /**
+   * @description 只有原歌词的处理
+   */
   generLyric() {
     const lines = this.lrc.lyric.split('\n');
     lines.forEach((line) => this.makeLine(line));
   }
-
+  /**
+   * @description 原歌词和翻译歌词的处理
+   */
   generTLyric() {
     const lines = this.lrc.lyric.split('\n');
     const tlines = this.lrc.tlyric.split('\n').filter(item => {
@@ -95,7 +118,7 @@ export class WyLyric {
       const txtCn = tline ? tline.replace(timeExp, '').trim() : '';
       // 说明是有歌词的
       if (txt) {
-        const thirdResult = result[3] || '00';
+        const thirdResult = result[4] || '00'; // 正则修改后,这里也要向后推一位,本来是result[3]
         const adaptThirdResult = thirdResult.length > 2 ? parseInt(thirdResult, 0) : parseInt(thirdResult, 0) * 10;
         const time = Number(result[1]) * 60 * 1000 + Number(result[2]) * 1000 + adaptThirdResult;
         this.lines.push({txt, txtCn, time});
@@ -105,6 +128,51 @@ export class WyLyric {
 
   getLines() {
     return this.lines;
+  }
+
+  /**
+   * @description
+   * @param startTime 播放从什么时间开始
+   */
+  play(startTime:number = 0){
+    if(!this.lines.length) return
+    if(!this.playing) {
+      this.playing = true
+    }
+
+    this.curNum = this.findCurNum(startTime)
+    this.startStamp = Date.now() - startTime;
+    if(this.curNum < this.lines.length){
+      this.playReset()
+    }
+  }
+
+  private playReset(){
+    let line = this.lines[this.curNum]
+    const delay = line.time - (Date.now() - this.startStamp) // 这段理解可以看作一段后端请求时间过程翻版,两段歌词时间的间隔并不是单纯的相减
+    setTimeout(()=>{
+      this.callHandler(this.curNum++);
+      if(this.curNum < this.lines.length && this.playing){
+        this.playReset()
+      }
+    },delay)
+  }
+
+  private callHandler(i:number){
+    this.handler.next({
+      txt:this.lines[i].txt,
+      txtCn:this.lines[i].txtCn,
+      lineNum:i,
+    })
+  }
+
+  /**
+   * @description 根据time从this.lines找到第几行
+   * @param startTime 滚动滑块从暂停到开始的时间节点
+   */
+  findCurNum(startTime:number):number {
+    const index = this.lines.findIndex(line => startTime <= line.time)
+    return index === -1 ? this.lines.length - 1: index;
   }
 
 }
